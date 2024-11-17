@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: sharding-jdbc-demo
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:shardingsphere-config.yaml
+
+# 应用名称#spring.application.name=sharging-jdbc-demo
+### 开发环境设置
+##spring.profiles.active=dev
+### 内存模式
+##spring.shardingsphere.mode.type=Memory
+##
