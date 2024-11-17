@@ -1,37 +1,56 @@
 dataSources:
-  ds_1: # 数据源名称
+  db_order0: # 数据源名称
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.jdbc.Driver
-    jdbcUrl: jdbc:mysql://116.198.253.55:3306/db_user
+    jdbcUrl: jdbc:mysql://116.198.253.55:3306/db_order0
     username: root
     password: gong990117
-  ds_2:
+  db_order1:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.jdbc.Driver
-    jdbcUrl: jdbc:mysql://116.198.253.55:3306/db_order
+    jdbcUrl: jdbc:mysql://116.198.253.55:3306/db_order1
     username: root
     password: gong990117
 
 rules:
   - !SHARDING
-    tables: # 数据分片规则配置
-      t_user: # 逻辑表名称
-        actualDataNodes: ds_1.t_user
+    # --------------------数据分片规则配置
+    tables:
       t_order: # 逻辑表名称
-        actualDataNodes: ds_2.t_order
-
+        # actualDataNodes: db_order0.t_order0, db_order0.t_order1, db_order1.t_order0, db_order1.t_order1
+        # inline表达式简化
+        actualDataNodes: db_order$->{0..1}.t_order$->{0..1}
+        # ----------分库策略
+        databaseStrategy:
+          standard:
+            # 分片列名称
+            shardingColumn: user_id
+            # 分片算法名称
+            shardingAlgorithmName: alg_inline_userid
+        # ----------分表策略
+        tableStrategy:
+          standard:
+            # 分片列名称
+            shardingColumn: order_no
+            # 分片算法名称
+            shardingAlgorithmName: alg_hash_mod
+    # --------------------分片算法配置
+    shardingAlgorithms:
+      # ----------行表达式分片算法（分库）
+      alg_inline_userid: # 分片算法名称
+        type: INLINE
+        props: # 分片算法属性配置
+          algorithm-expression: db_order$->{user_id % 2}
+      # ----------取模分片算法
+#      alg_mod:
+#        type: MOD
+#        props:
+#          sharding-count: 2
+      # ----------哈希取模分片算法
+      alg_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 2
 # 打印SQL
 props:
   sql-show: true
-
-
-#  # 标准分片表配置（数据节点）
-#  # spring.shardingsphere.rules.sharding.tables.<table-name>.actual-data-nodes=值
-#  # 值由数据源名 + 表名组成，以小数点分隔。
-#  # <table-name>：逻辑表名
-#spring.shardingsphere.rules.sharding.tables.t_user.actual-data-nodes=server-user.t_user
-#spring.shardingsphere.rules.sharding.tables.t_order.actual-data-nodes=server-order.t_order
-#
-#
-#  # 打印SQL
-#spring.shardingsphere.props.sql-show=true

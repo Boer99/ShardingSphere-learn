@@ -23,7 +23,7 @@ public class ShardingTest {
      * 垂直分片：插入数据测试
      */
     @Test
-    public void testInsertOrderAndUser(){
+    public void testInsertOrderAndUser() {
         User user = new User();
         user.setUname("强哥");
         userMapper.insert(user);
@@ -36,10 +36,25 @@ public class ShardingTest {
     }
 
     /**
+     * 水平分片：插入数据测试
+     */
+    @Test
+    public void testInsertOrder() {
+        Order order;
+        for (int i = 11; i <= 20; i++) {
+            order = new Order();
+            order.setOrderNo("aaa" + i);
+            order.setUserId((long) i);
+            order.setAmount(new BigDecimal(100));
+            orderMapper.insert(order);
+        }
+    }
+
+    /**
      * 垂直分片：查询数据测试
      */
     @Test
-    public void testSelectFromOrderAndUser(){
+    public void testSelectFromOrderAndUser() {
         User user = userMapper.selectById(1L);
         Order order = orderMapper.selectById(1L);
     }
